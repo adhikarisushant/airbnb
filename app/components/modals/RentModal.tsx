@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useMemo} from "react";
+import { useState, useMemo } from "react";
 import { FieldValues, useForm } from 'react-hook-form';
 
 import useRentModal from "@/app/hooks/useRentModal";
@@ -11,6 +11,7 @@ import { categories } from "../navbar/Categories";
 import CategoryInput from "../inputs/CategoryInput";
 import CountrySelect from "../inputs/CountrySelect";
 import dynamic from "next/dynamic";
+import Counter from "../inputs/Counter";
 
 enum STEPS {
     CATEGORY = 0,
@@ -51,6 +52,9 @@ const RentModal = () => {
 
     const category = watch('category');
     const location = watch('location');
+    const guestCount = watch('guestCount');
+    const roomCount = watch('roomCount');
+    const bathroomCount = watch('bathroomCount');
 
     const Map = useMemo(() => dynamic(() => import("../Map"), {
         ssr: false
@@ -65,11 +69,11 @@ const RentModal = () => {
     }
 
     const onBack = () => {
-        setStep((value) => value - 1); 
+        setStep((value) => value - 1);
     };
 
     const onNext = () => {
-        setStep((value) =>  value + 1);
+        setStep((value) => value + 1);
     }
 
     const actionLabel = useMemo(() => {
@@ -81,7 +85,7 @@ const RentModal = () => {
     }, [step])
 
     const secondaryActionLabel = useMemo(() => {
-        if(step === STEPS.CATEGORY) {
+        if (step === STEPS.CATEGORY) {
             return undefined;
         }
 
@@ -90,7 +94,7 @@ const RentModal = () => {
 
     let bodyContent = (
         <div className="flex flex-col gap-8">
-            <Heading 
+            <Heading
                 title="Which of these best describes your place?"
                 subtitle="Pick a category"
             />
@@ -107,40 +111,76 @@ const RentModal = () => {
             >
                 {categories.map((item) => (
                     <div key={item.label} className="col-span-1">
-                        <CategoryInput 
+                        <CategoryInput
                             onClick={(category) => setCustomValue('category', category)}
                             selected={category === item.label}
                             label={item.label}
                             icon={item.icon}
                         />
-                    </div>   
+                    </div>
                 ))}
-            </div>    
+            </div>
         </div>
     )
 
     if (step === STEPS.LOCATION) {
         bodyContent = (
             <div className="flex flex-col gap-8">
-                <Heading 
+                <Heading
                     title="Where is your place located?"
-                    subtitle="Help guests find you!"    
+                    subtitle="Help guests find you!"
                 />
 
-                <CountrySelect 
+                <CountrySelect
                     value={location}
                     onChange={(value) => setCustomValue('location', value)}
                 />
 
-                <Map 
+                <Map
                     center={location?.latlng}
                 />
             </div>
         )
-    } 
+    }
 
-    return(
-        <Modal 
+    if (step === STEPS.INFO) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="Share some basics about your place"
+                    subtitle="What amenities do you have?"
+                />
+
+                <Counter
+                    title="Guests"
+                    subtitle="How many guests do you allow?"
+                    value={guestCount}
+                    onChange={(value) => setCustomValue('guestCount', value)}
+                />
+
+                <hr />
+
+                <Counter
+                    title="Room"
+                    subtitle="How many guests do you have?"
+                    value={roomCount}
+                    onChange={(value) => setCustomValue('roomCount', value)}
+                />
+
+                <hr />  
+                <Counter
+                    title="Bathrooms"
+                    subtitle="How many bathrooms do you have?"
+                    value={bathroomCount}
+                    onChange={(value) => setCustomValue('bathroomCount', value)}
+                />
+
+            </div>
+        )
+    }
+
+    return (
+        <Modal
             isOpen={rentModal.isOpen}
             onClose={rentModal.onClose}
             onSubmit={onNext}
