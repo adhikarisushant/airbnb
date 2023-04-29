@@ -9,6 +9,8 @@ export default async function Home() {
   const listings = await getListings();
   const currentUser = await getCurrentUser();
 
+  // edit
+
   if(listings.length === 0) {
     return (
       <ClientOnly>
